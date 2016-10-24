@@ -75,6 +75,7 @@
       }
 
       fsm.current      = 'none';
+      fsm.disabled     = false;
       fsm.is           = function(state) { return (state instanceof Array) ? (state.indexOf(this.current) >= 0) : (this.current === state); };
       fsm.can          = function(event) { return !this.transition && map[event] && (map[event].hasOwnProperty(this.current) || map[event].hasOwnProperty(StateMachine.WILDCARD)); }
       fsm.cannot       = function(event) { return !this.can(event); };
@@ -93,6 +94,8 @@
       fsm.error        = cfg.error || function(name, from, to, args, error, msg, e) { throw e || msg; }; // default behavior when something unexpected happens is to throw an exception, but caller can override this behavior if desired (see github issue #3 and #17)
 
       fsm.event = function(eventName) {
+        if (fsm.disabled)
+          return fsm.error(name, fsm.current, eventName, args, StateMachine.Error.DISABLED, "State machine is currently disabled: ");
         if (map.hasOwnProperty(eventName) && typeof fsm[eventName] === "function") {
           var args = Array.prototype.slice.call(arguments);
           args.shift(); // get rid of the first argument (eventName)
@@ -111,6 +114,8 @@
     //===========================================================================
 
     doCallback: function(fsm, func, name, from, to, args) {
+      if (fsm.disabled)
+        return fsm.error(name, fsm.current, '', args, StateMachine.Error.DISABLED, "State machine is currently disabled: ");
       if (func) {
         try {
           return func.apply(fsm, [name, from, to].concat(args));
