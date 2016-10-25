@@ -19,5 +19,8 @@
     "grunt-contrib-uglify": "^1.0.1",
     "qunit": "~0.6.2"
   },
-  "version": "2.3.7"
+  "version": "2.3.7",
+  "dependencies": {
+    "lodash": "^4.16.4"
+  }
 }
